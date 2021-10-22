@@ -44,7 +44,11 @@ function App() {
   }
 
   const onClickReset = () => {
-
+	setTimes([]);
+	setTotalTime(0);
+	setTimer(0);
+	clearInterval(intervalVal);
+    setIntervalVal(null);
   }
 
   //add 0 to numbers less than 10
@@ -65,6 +69,7 @@ function App() {
 		<div>
 			<Button value='Start' onClick={onClickStart}/>
 			<Button value='Stop' onClick={onClickStop}/>
+			<Button value='Reset' onClick={onClickReset}/>
 		</div>
 		<div>
 			{ times.map(obj => <TimesDisplay key={obj.startTime} obj={obj}/>) }
