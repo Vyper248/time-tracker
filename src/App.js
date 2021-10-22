@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './App.css';
 
-import { differenceInSeconds, format, intervalToDuration } from 'date-fns';
+import { differenceInSeconds } from 'date-fns';
 
 import TimesDisplay from './components/TimesDisplay';
 import Button from './components/Button';
@@ -14,18 +14,63 @@ function App() {
 	const [timer, setTimer] = useState(0);
 	const [intervalVal, setIntervalVal] = useState(null);
 
+	useEffect(() => {
+		retrieveFromLocal();
+	}, []);
+
+	const saveToLocal = (startTime, times, totalTime) => {
+		let object = {startTime, times, totalTime};
+		localStorage.setItem('time-tracker-state', JSON.stringify(object));
+	}
+
+	const retrieveFromLocal = () => {
+		let object = localStorage.getItem('time-tracker-state');
+		if (object !== null) object = JSON.parse(object);
+		else object = {startTime: 0, times: [], totalTime: 0};
+
+		//convert time strings back into time objects
+		let newTimes = object.times.map(timeObj => {
+			return {
+				startTime: new Date(timeObj.startTime), 
+				endTime: new Date(timeObj.endTime)
+			};
+		});
+
+		//convert time string to time object if not 0
+		let newStartTime = object.startTime === 0 ? 0 : new Date(object.startTime);
+
+		//restore state
+		setTimes(newTimes);
+		setStartTime(newStartTime);
+		setTotalTime(object.totalTime);
+		startInterval(newStartTime);
+	}
+
+	const startInterval = (start) => {
+		if (start === 0) return;
+		let a = setInterval(() => {
+			let stopTime = new Date();
+			let diff = differenceInSeconds(stopTime, start);
+			setTimer(diff);
+		}, 100);
+		setIntervalVal(a);
+	}
+
 	const onClickStart = () => {
 		if (startTime !== 0) return;
 
 		let start = new Date();
 		setStartTime(start);
+		saveToLocal(start, times, totalTime);
 
-		let a = setInterval(() => {
-			let stopTime = new Date();
-			let diff = differenceInSeconds(stopTime, start);
-			setTimer(diff);
-		}, 1000);
-		setIntervalVal(a);
+		startInterval(start);
+	}
+
+	const clearValues = () => {
+		setStartTime(0);
+		clearInterval(intervalVal);
+		setIntervalVal(null);
+		setTimer(0);
 	}
 
 	const onClickStop = () => {
@@ -33,22 +78,21 @@ function App() {
 
 		let endTime = new Date();
 		let arrObj = {startTime, endTime};
-		setTimes([...times, arrObj]);
+		let newTimes = [...times, arrObj];
+		setTimes(newTimes);
 
 		let diff = differenceInSeconds(endTime, startTime);
-		setTotalTime(totalTime + diff);
-		setStartTime(0);
-		clearInterval(intervalVal);
-		setIntervalVal(null);
-		setTimer(0);
+		let newTotal = totalTime + diff;
+		setTotalTime(newTotal);
+		clearValues();
+		saveToLocal(0, newTimes, newTotal);
 	}
 
 	const onClickReset = () => {
 		setTimes([]);
 		setTotalTime(0);
-		setTimer(0);
-		clearInterval(intervalVal);
-		setIntervalVal(null);
+		clearValues();
+		saveToLocal(0, [], 0);
 	}
 
 	return (
