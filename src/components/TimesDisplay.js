@@ -10,10 +10,10 @@ const StyledComp = styled.div`
 
     & > div:first-child {
         display: grid;
-        grid-template-columns: 1fr 50px 1fr;
+        grid-template-columns: 1fr 30px 1fr;
         border: 1px solid gray;
         border-radius: 5px 0px 0px 5px;
-        width: 220px;
+        width: 200px;
         margin: 5px auto;
         text-align: center;
         margin-right: 0px;
@@ -25,11 +25,13 @@ const StyledComp = styled.div`
         border-radius: 0px 5px 5px 0px;
         margin: 5px auto;
         margin-left: 0px;
+        width: 100px;
     }
 
     & > div > div {
         margin: 5px;
-        padding: 5px;
+        padding-top: 5px;
+        padding-bottom: 5px;
     }
 
 `

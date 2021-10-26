@@ -3,9 +3,10 @@ import './App.css';
 
 import { differenceInSeconds } from 'date-fns';
 
-import TimesDisplay from './components/TimesDisplay';
+import TimeList from './components/TimeList';
 import Button from './components/Button';
 import Time from './components/Time';
+import { getTotalTime } from './functions';
 
 function App() {
 	const [startTime, setStartTime] = useState(0);
@@ -39,10 +40,14 @@ function App() {
 		//convert time string to time object if not 0
 		let newStartTime = object.startTime === 0 ? 0 : new Date(object.startTime);
 
+		//calculate total. Could just as easily restore total value from storage, 
+		//but this allows me to change the local storage values and still get a correct total
+		let newTotal = getTotalTime(newTimes, true);
+
 		//restore state
 		setTimes(newTimes);
 		setStartTime(newStartTime);
-		setTotalTime(object.totalTime);
+		setTotalTime(newTotal);
 		startInterval(newStartTime);
 	}
 
@@ -81,8 +86,7 @@ function App() {
 		let newTimes = [...times, arrObj];
 		setTimes(newTimes);
 
-		let diff = differenceInSeconds(endTime, startTime);
-		let newTotal = totalTime + diff;
+		let newTotal = getTotalTime(newTimes, true);
 		setTotalTime(newTotal);
 		clearValues();
 		saveToLocal(0, newTimes, newTotal);
@@ -108,7 +112,7 @@ function App() {
 			<Button value='Reset' onClick={onClickReset}/>
 		</div>
 		<div>
-			{ times.map(obj => <TimesDisplay key={obj.startTime} obj={obj}/>) }
+			<TimeList times={times}/>
 		</div>
 		</div>
 	);
