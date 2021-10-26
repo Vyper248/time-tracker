@@ -99,7 +99,7 @@ function App() {
 		<div className="App">
 		<h2>Time Tracker</h2>
 		<div>
-			<Time seconds={totalTime} heading='Total Time'/>
+			<Time seconds={totalTime+timer} heading='Total Time'/>
 			<Time seconds={timer} heading='Current Time' active={startTime !== 0}/>
 		</div>
 		<div>
