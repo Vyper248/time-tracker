@@ -30,7 +30,7 @@ const TimeList = ({times}) => {
                 return  <div key={date}>
                             <h3>{date}</h3>
                             { timeObjs.map(obj => <TimesDisplay key={obj.startTime} obj={obj}/>) }
-                            <div>Total Time: {totalTime}</div>
+                            <div>Daily Total: {totalTime}</div>
                         </div>;
             })
         }
