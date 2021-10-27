@@ -118,7 +118,7 @@ function App() {
 		<h2>Time Tracker</h2>
 		<div>
 			<Time seconds={totalTime+timer} heading='Total Time'/>
-			{ todaysTime === totalTime ? null : <Time seconds={todaysTime+timer} heading='Todays Time'/> }
+			{ todaysTime === totalTime ? null : <Time seconds={todaysTime+timer} heading="Today's Time"/> }
 			<Time seconds={timer} heading='Current Time' active={startTime !== 0}/>
 		</div>
 		<div>
