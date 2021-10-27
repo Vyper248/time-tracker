@@ -20,9 +20,9 @@ const StyledComp = styled.div`
     }
 `
 
-const Time = ({seconds, heading, active=false}) => {
+const Time = ({seconds, heading, active=false, style}) => {
     return (
-        <StyledComp active={active}>
+        <StyledComp active={active} style={style}>
             <div>{ heading }</div>
             <div>{ formatSeconds(seconds) }</div>
         </StyledComp>

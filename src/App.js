@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react';
 import './App.css';
 
 import { differenceInSeconds } from 'date-fns';
+import { getTotalTime, sortByDate, getDate } from './functions';
 
 import TimeList from './components/TimeList';
 import Button from './components/Button';
 import Time from './components/Time';
-import { getTotalTime, sortByDate, getDate } from './functions';
+import Header from './components/Header';
 
 function App() {
 	const [startTime, setStartTime] = useState(0);
@@ -15,13 +16,14 @@ function App() {
 	const [todaysTime, setTodaysTime] = useState(0);
 	const [timer, setTimer] = useState(0);
 	const [intervalVal, setIntervalVal] = useState(null);
+	const [goalTime, setGoalTime] = useState(0);
 
 	useEffect(() => {
 		retrieveFromLocal();
 	}, []);
 
-	const saveToLocal = (startTime, times, totalTime) => {
-		let object = {startTime, times, totalTime};
+	const saveToLocal = (startTime, times, totalTime, goalTime) => {
+		let object = {startTime, times, totalTime, goalTime};
 		localStorage.setItem('time-tracker-state', JSON.stringify(object));
 	}
 
@@ -51,6 +53,7 @@ function App() {
 		setTotalTime(newTotal);
 		startInterval(newStartTime);
 		getTodaysTime(newTimes);
+		setGoalTime(object.goalTime);
 	}
 
 	const startInterval = (start) => {
@@ -79,7 +82,7 @@ function App() {
 
 		let start = new Date();
 		setStartTime(start);
-		saveToLocal(start, times, totalTime);
+		saveToLocal(start, times, totalTime, goalTime);
 
 		startInterval(start);
 	}
@@ -89,6 +92,7 @@ function App() {
 		clearInterval(intervalVal);
 		setIntervalVal(null);
 		setTimer(0);
+		setTodaysTime(0);
 	}
 
 	const onClickStop = () => {
@@ -102,7 +106,7 @@ function App() {
 		let newTotal = getTotalTime(newTimes, true);
 		setTotalTime(newTotal);
 		clearValues();
-		saveToLocal(0, newTimes, newTotal);
+		saveToLocal(0, newTimes, newTotal, goalTime);
 		getTodaysTime(newTimes);
 	}
 
@@ -110,17 +114,33 @@ function App() {
 		setTimes([]);
 		setTotalTime(0);
 		clearValues();
-		saveToLocal(0, [], 0);
+		saveToLocal(0, [], 0, goalTime);
 	}
+
+	const onChangeGoal = (s) => {
+		setGoalTime(s);
+		saveToLocal(startTime, times, totalTime, s);
+	}
+
+	let remainingTime = goalTime - totalTime - timer;
+	if (remainingTime < 0) remainingTime = 0;
+
+	let marginTop = todaysTime === totalTime ? 0 : -20;
 
 	return (
 		<div className="App">
-		<h2>Time Tracker</h2>
+		<Header goal={goalTime} onChangeGoal={onChangeGoal}/>
 		<div>
 			<Time seconds={totalTime+timer} heading='Total Time'/>
 			{ todaysTime === totalTime ? null : <Time seconds={todaysTime+timer} heading="Today's Time"/> }
-			<Time seconds={timer} heading='Current Time' active={startTime !== 0}/>
+			<Time seconds={timer} heading='Current Time' active={startTime !== 0} style={{marginTop}}/>
 		</div>
+		{ goalTime > 0 ? 
+			<div style={{marginTop}}>
+				<Time seconds={goalTime} heading='Goal' active={remainingTime === 0}/>
+				<Time seconds={remainingTime} heading='Remaining' active={remainingTime === 0}/>
+			</div> 
+			: null }
 		<div>
 			<Button value='Start' onClick={onClickStart}/>
 			<Button value='Stop' onClick={onClickStop}/>
