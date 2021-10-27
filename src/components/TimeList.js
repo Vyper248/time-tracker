@@ -1,24 +1,12 @@
-import { format } from 'date-fns';
-
-import { getTotalTime } from '../functions';
+import { getTotalTime, sortByDate } from '../functions';
 
 import TimesDisplay from './TimesDisplay';
-
-const getDate = (time) => {
-    return format(time, 'EEEE do');
-}
 
 const TimeList = ({times}) => {
     if (times.length === 0) return null;
 
     //sort objects by date
-    let datesObj = {};
-    times.forEach(timeObj => {
-        let date = getDate(timeObj.startTime);
-        if (datesObj[date] === undefined) datesObj[date] = [];
-        datesObj[date].push(timeObj);
-    });
-
+    let datesObj = sortByDate(times);
     let uniqueDates = Object.keys(datesObj);
 
     return (

@@ -1,17 +1,18 @@
 import { useState, useEffect } from 'react';
 import './App.css';
 
-import { differenceInSeconds } from 'date-fns';
+import { differenceInSeconds, format } from 'date-fns';
 
 import TimeList from './components/TimeList';
 import Button from './components/Button';
 import Time from './components/Time';
-import { getTotalTime } from './functions';
+import { getTotalTime, sortByDate, getDate } from './functions';
 
 function App() {
 	const [startTime, setStartTime] = useState(0);
 	const [times, setTimes] = useState([]);
 	const [totalTime, setTotalTime] = useState(0);
+	const [todaysTime, setTodaysTime] = useState(0);
 	const [timer, setTimer] = useState(0);
 	const [intervalVal, setIntervalVal] = useState(null);
 
@@ -49,6 +50,7 @@ function App() {
 		setStartTime(newStartTime);
 		setTotalTime(newTotal);
 		startInterval(newStartTime);
+		getTodaysTime(newTimes);
 	}
 
 	const startInterval = (start) => {
@@ -59,6 +61,17 @@ function App() {
 			setTimer(diff);
 		}, 100);
 		setIntervalVal(a);
+	}
+
+	const getTodaysTime = (times) => {
+		let datesObj = sortByDate(times);
+		let today = getDate(new Date());
+		let todayTimes = datesObj[today];
+
+		if (todayTimes !== undefined) {
+			let time = getTotalTime(todayTimes, true);
+			setTodaysTime(time);
+		}
 	}
 
 	const onClickStart = () => {
@@ -90,6 +103,7 @@ function App() {
 		setTotalTime(newTotal);
 		clearValues();
 		saveToLocal(0, newTimes, newTotal);
+		getTodaysTime(newTimes);
 	}
 
 	const onClickReset = () => {
@@ -104,6 +118,7 @@ function App() {
 		<h2>Time Tracker</h2>
 		<div>
 			<Time seconds={totalTime+timer} heading='Total Time'/>
+			{ todaysTime === totalTime ? null : <Time seconds={todaysTime+timer} heading='Todays Time'/> }
 			<Time seconds={timer} heading='Current Time' active={startTime !== 0}/>
 		</div>
 		<div>

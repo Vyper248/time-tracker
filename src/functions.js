@@ -1,4 +1,4 @@
-import { intervalToDuration, addSeconds, differenceInHours, differenceInSeconds } from 'date-fns';
+import { intervalToDuration, addSeconds, differenceInHours, differenceInSeconds, format } from 'date-fns';
 
 //add 0 to numbers less than 10
 const a0 = (t) => t < 10 ? '0'+t : t;
@@ -22,4 +22,20 @@ export const getTotalTime = (timeObjs, returnSeconds=false) => {
     });
     if (returnSeconds) return seconds;
     else return formatSeconds(seconds);
+}
+
+export const getDate = (time) => {
+    return format(time, 'EEEE do');
+}
+
+export const sortByDate = (times) => {
+    let datesObj = {};
+
+    times.forEach(timeObj => {
+        let date = getDate(timeObj.startTime);
+        if (datesObj[date] === undefined) datesObj[date] = [];
+        datesObj[date].push(timeObj);
+    });
+
+    return datesObj;
 }
