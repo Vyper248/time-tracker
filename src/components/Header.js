@@ -28,7 +28,7 @@ const StyledComp = styled.div`
     }
 `
 
-const Header = ({goal, onChangeGoal}) => {
+const Header = ({...goalProps}) => {
     const [settingsOpen, setSettingsOpen] = useState(false);
 
     const onClickSettings = () => {
@@ -45,7 +45,7 @@ const Header = ({goal, onChangeGoal}) => {
             <h2>Time Tracker</h2>
             <div>
                 <MdSettings onClick={onClickSettings}/>
-                { settingsOpen ? <GoalPopup goal={goal} onChangeGoal={onChangeGoal} onClose={onCloseSettings}/> : null }
+                { settingsOpen ? <GoalPopup {...goalProps} onClose={onCloseSettings}/> : null }
             </div>
         </StyledComp>
     );

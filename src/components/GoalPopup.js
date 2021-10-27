@@ -31,6 +31,12 @@ const StyledComp = styled.div`
         width: 100%;
     }
 
+    & input[type='checkbox'] {
+        width: 15px;
+        height: 15px;
+        margin-left: 0px;
+    }
+
     & td {
         padding: 5px;
     }
@@ -48,11 +54,12 @@ const StyledComp = styled.div`
     }
 `
 
-const GoalPopup = ({goal, onChangeGoal, onClose}) => {
+const GoalPopup = ({goal, onChangeGoal, goalDaily=false, onClose}) => {
     let goalTime = formatSeconds(goal);
     let parts = goalTime.split(':').map(time => parseInt(time));
     const [hours, setHours] = useState(parts[0]);
     const [minutes, setMinutes] = useState(parts[1]);
+    const [daily, setDaily] = useState(goalDaily);
 
     const onChangeHours = (e) => {
         setHours(e.target.value);
@@ -62,11 +69,15 @@ const GoalPopup = ({goal, onChangeGoal, onClose}) => {
         setMinutes(e.target.value);
     }
 
+    const onChangeDaily = (e) => {
+        setDaily(e.target.checked);
+    }
+
     const setNewGoal = () => {
         let seconds = 0;
         seconds += hours * 60 * 60;
         seconds += minutes * 60;
-        onChangeGoal(seconds);
+        onChangeGoal(seconds, daily);
         onClose();
     }
 
@@ -83,6 +94,10 @@ const GoalPopup = ({goal, onChangeGoal, onClose}) => {
                     <tr>
                         <td>Minutes</td>
                         <td><input type='number' value={minutes} onChange={onChangeMinutes}/></td>
+                    </tr>
+                    <tr>
+                        <td>Daily</td>
+                        <td style={{textAlign: 'left'}}><input type='checkbox' checked={daily} onChange={onChangeDaily}/></td>
                     </tr>
                     <tr>
                         <td><Button value='Save' onClick={setNewGoal} margin='0px' width='80px'/></td>

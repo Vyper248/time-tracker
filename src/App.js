@@ -17,20 +17,21 @@ function App() {
 	const [timer, setTimer] = useState(0);
 	const [intervalVal, setIntervalVal] = useState(null);
 	const [goalTime, setGoalTime] = useState(0);
+	const [goalDaily, setGoalDaily] = useState(false);
 
 	useEffect(() => {
 		retrieveFromLocal();
 	}, []);
 
-	const saveToLocal = (startTime, times, totalTime, goalTime) => {
-		let object = {startTime, times, totalTime, goalTime};
+	const saveToLocal = (startTime, times, totalTime, goalTime, goalDaily) => {
+		let object = {startTime, times, totalTime, goalTime, goalDaily};
 		localStorage.setItem('time-tracker-state', JSON.stringify(object));
 	}
 
 	const retrieveFromLocal = () => {
 		let object = localStorage.getItem('time-tracker-state');
 		if (object !== null) object = JSON.parse(object);
-		else object = {startTime: 0, times: [], totalTime: 0};
+		else object = {startTime: 0, times: [], totalTime: 0, goalTime: 0, goalDaily: false};
 
 		//convert time strings back into time objects
 		let newTimes = object.times.map(timeObj => {
@@ -54,6 +55,7 @@ function App() {
 		startInterval(newStartTime);
 		getTodaysTime(newTimes);
 		setGoalTime(object.goalTime);
+		setGoalDaily(object.goalDaily);
 	}
 
 	const startInterval = (start) => {
@@ -82,7 +84,7 @@ function App() {
 
 		let start = new Date();
 		setStartTime(start);
-		saveToLocal(start, times, totalTime, goalTime);
+		saveToLocal(start, times, totalTime, goalTime, goalDaily);
 
 		startInterval(start);
 	}
@@ -106,7 +108,7 @@ function App() {
 		let newTotal = getTotalTime(newTimes, true);
 		setTotalTime(newTotal);
 		clearValues();
-		saveToLocal(0, newTimes, newTotal, goalTime);
+		saveToLocal(0, newTimes, newTotal, goalTime, goalDaily);
 		getTodaysTime(newTimes);
 	}
 
@@ -114,22 +116,24 @@ function App() {
 		setTimes([]);
 		setTotalTime(0);
 		clearValues();
-		saveToLocal(0, [], 0, goalTime);
+		saveToLocal(0, [], 0, goalTime, goalDaily);
 	}
 
-	const onChangeGoal = (s) => {
+	const onChangeGoal = (s, daily) => {
 		setGoalTime(s);
-		saveToLocal(startTime, times, totalTime, s);
+		setGoalDaily(daily);
+		saveToLocal(startTime, times, totalTime, s, daily);
 	}
 
 	let remainingTime = goalTime - totalTime - timer;
+	if (goalDaily) remainingTime = goalTime - todaysTime - timer;
 	if (remainingTime < 0) remainingTime = 0;
 
 	let marginTop = todaysTime === totalTime ? 0 : -20;
 
 	return (
 		<div className="App">
-		<Header goal={goalTime} onChangeGoal={onChangeGoal}/>
+		<Header goal={goalTime} onChangeGoal={onChangeGoal} goalDaily={goalDaily}/>
 		<div>
 			<Time seconds={totalTime+timer} heading='Total Time'/>
 			{ todaysTime === totalTime ? null : <Time seconds={todaysTime+timer} heading="Today's Time"/> }
@@ -137,7 +141,7 @@ function App() {
 		</div>
 		{ goalTime > 0 ? 
 			<div style={{marginTop}}>
-				<Time seconds={goalTime} heading='Goal' active={remainingTime === 0}/>
+				<Time seconds={goalTime} heading={goalDaily ? 'Daily Goal' : 'Goal'} active={remainingTime === 0}/>
 				<Time seconds={remainingTime} heading='Remaining' active={remainingTime === 0}/>
 			</div> 
 			: null }
