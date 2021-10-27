@@ -1,6 +1,6 @@
-import { getTotalTime, sortByDate } from '../functions';
+import { sortByDate } from '../functions';
 
-import TimesDisplay from './TimesDisplay';
+import TimeGroup from './TimeGroup';
 
 const TimeList = ({times}) => {
     if (times.length === 0) return null;
@@ -11,17 +11,7 @@ const TimeList = ({times}) => {
 
     return (
         <div>
-        {
-            uniqueDates.map(date => {
-                let timeObjs = datesObj[date];
-                let totalTime = getTotalTime(timeObjs);
-                return  <div key={date}>
-                            <h3>{date}</h3>
-                            { timeObjs.map(obj => <TimesDisplay key={obj.startTime} obj={obj}/>) }
-                            <div>Daily Total: {totalTime}</div>
-                        </div>;
-            })
-        }
+            { uniqueDates.map(date => <TimeGroup key={date} date={date} timeObjs={datesObj[date]}/>) }
         </div>
     );
 }
