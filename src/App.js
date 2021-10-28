@@ -6,6 +6,7 @@ import { getTotalTime, sortByDate, getDate } from './functions';
 
 import TimeList from './components/TimeList';
 import Button from './components/Button';
+import ConfirmButtonPopup from './components/ConfirmButtonPopup';
 import Time from './components/Time';
 import Header from './components/Header';
 
@@ -146,9 +147,9 @@ function App() {
 			</div> 
 			: null }
 		<div>
-			<Button value='Start' onClick={onClickStart}/>
-			<Button value='Stop' onClick={onClickStop}/>
-			<Button value='Reset' onClick={onClickReset}/>
+			<Button label='Start' onClick={onClickStart}/>
+			<Button label='Stop' onClick={onClickStop}/>
+			<ConfirmButtonPopup label='Reset' onClick={onClickReset} width='100px'/>
 		</div>
 		<div>
 			<TimeList times={times}/>

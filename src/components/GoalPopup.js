@@ -100,8 +100,8 @@ const GoalPopup = ({goal, onChangeGoal, goalDaily=false, onClose}) => {
                         <td style={{textAlign: 'left'}}><input type='checkbox' checked={daily} onChange={onChangeDaily}/></td>
                     </tr>
                     <tr>
-                        <td><Button value='Save' onClick={setNewGoal} margin='0px' width='80px'/></td>
-                        <td><Button value='Cancel' onClick={onClose} margin='0px' width='80px'/></td>
+                        <td><Button label='Save' onClick={setNewGoal} margin='0px' width='80px'/></td>
+                        <td><Button label='Cancel' onClick={onClose} margin='0px' width='80px'/></td>
                     </tr>
                 </tbody>
             </table>

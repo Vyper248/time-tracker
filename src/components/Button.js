@@ -16,10 +16,10 @@ const StyledComp = styled.div`
     }
 `
 
-const Button = ({value, onClick, width='100px', margin='5px'}) => {
+const Button = ({label, onClick, width='100px', margin='5px'}) => {
     return (
         <StyledComp onClick={onClick} width={width} margin={margin}>
-            {value}
+            {label}
         </StyledComp>
     );
 }
