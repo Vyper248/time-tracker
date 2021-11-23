@@ -67,6 +67,7 @@ function App() {
 			setTimer(diff);
 		}, 100);
 		setIntervalVal(a);
+		window.document.title = 'Time Tracker - Active';
 	}
 
 	const getTodaysTime = (times) => {
@@ -93,6 +94,7 @@ function App() {
 	const clearValues = () => {
 		setStartTime(0);
 		clearInterval(intervalVal);
+		window.document.title = 'Time Tracker';
 		setIntervalVal(null);
 		setTimer(0);
 		setTodaysTime(0);
