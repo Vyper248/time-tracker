@@ -65,7 +65,7 @@ const StyledComp = styled.div`
     }
 `
 
-const TimesDisplay = ({obj, times, setTimes, setChangedLocal}) => {
+const TimesDisplay = ({obj, times, setTimes}) => {
     const [edit, setEdit] = useState(false);
     const [firstTime, setFirstTime] = useState(obj.startTime.toLocaleTimeString());
     const [secondTime, setSecondTime] = useState(obj.endTime.toLocaleTimeString());
@@ -104,7 +104,6 @@ const TimesDisplay = ({obj, times, setTimes, setChangedLocal}) => {
             newTimes.splice(index, 1, {startTime: firstDate, endTime: secondDate});
             setTimes(newTimes);
             updateLocalStorage(newTimes);
-            setChangedLocal(true);
         }
     }
 

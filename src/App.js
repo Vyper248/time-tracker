@@ -19,7 +19,6 @@ function App() {
 	const [intervalVal, setIntervalVal] = useState(null);
 	const [goalTime, setGoalTime] = useState(0);
 	const [goalDaily, setGoalDaily] = useState(false);
-	const [changedLocal, setChangedLocal] = useState(false);
 
 	useEffect(() => {
 		let { startTime, times, totalTime, goalTime, goalDaily } = retrieveFromLocal();
@@ -34,13 +33,10 @@ function App() {
 
 	//if a time has been edited, then adjust the total time
 	useEffect(() => {
-		if (changedLocal) {
-			setChangedLocal(false);
-			let totalTime = getTotalTime(times, true);
-			setTotalTime(totalTime);
-			updateTodaysTime(times);
-		}
-	}, [changedLocal, times]);
+		let totalTime = getTotalTime(times, true);
+		setTotalTime(totalTime);
+		updateTodaysTime(times);
+	}, [times]);
 
 	const startInterval = (start) => {
 		if (start === 0) return;
@@ -80,7 +76,6 @@ function App() {
 		window.document.title = 'Time Tracker';
 		setIntervalVal(null);
 		setTimer(0);
-		setTodaysTime(0);
 	}
 
 	const onClickStop = () => {
@@ -94,7 +89,7 @@ function App() {
 		let newTotal = getTotalTime(newTimes, true);
 		setTotalTime(newTotal);
 		clearValues();
-		saveToLocal(0, newTimes, newTotal, goalTime, goalDaily);
+		saveToLocal(0, newTimes, 0, goalTime, goalDaily);
 		updateTodaysTime(newTimes);
 	}
 
@@ -102,6 +97,7 @@ function App() {
 		setTimes([]);
 		setTotalTime(0);
 		clearValues();
+		setTodaysTime(0);
 		saveToLocal(0, [], 0, goalTime, goalDaily);
 	}
 
@@ -137,7 +133,7 @@ function App() {
 			<ConfirmButtonPopup label='Reset' onClick={onClickReset} width='100px'/>
 		</div>
 		<div>
-			<TimeList times={times} setTimes={setTimes} setChangedLocal={setChangedLocal}/>
+			<TimeList times={times} setTimes={setTimes}/>
 		</div>
 		</div>
 	);
