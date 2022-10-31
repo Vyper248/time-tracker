@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import './App.css';
 
 import { differenceInSeconds } from 'date-fns';
-import { getTotalTime, sortByDate, getDate } from './functions';
+import { getTotalTime, sortByDate, getDate, retrieveFromLocal, saveToLocal } from './functions';
 
 import TimeList from './components/TimeList';
 import Button from './components/Button';
@@ -19,45 +19,28 @@ function App() {
 	const [intervalVal, setIntervalVal] = useState(null);
 	const [goalTime, setGoalTime] = useState(0);
 	const [goalDaily, setGoalDaily] = useState(false);
+	const [changedLocal, setChangedLocal] = useState(false);
 
 	useEffect(() => {
-		retrieveFromLocal();
+		let { startTime, times, totalTime, goalTime, goalDaily } = retrieveFromLocal();
+		setStartTime(startTime);
+		setTimes(times);
+		setTotalTime(totalTime);
+		setGoalTime(goalTime);
+		setGoalDaily(goalDaily);
+		startInterval(startTime);
+		updateTodaysTime(times);
 	}, []);
 
-	const saveToLocal = (startTime, times, totalTime, goalTime, goalDaily) => {
-		let object = {startTime, times, totalTime, goalTime, goalDaily};
-		localStorage.setItem('time-tracker-state', JSON.stringify(object));
-	}
-
-	const retrieveFromLocal = () => {
-		let object = localStorage.getItem('time-tracker-state');
-		if (object !== null) object = JSON.parse(object);
-		else object = {startTime: 0, times: [], totalTime: 0, goalTime: 0, goalDaily: false};
-
-		//convert time strings back into time objects
-		let newTimes = object.times.map(timeObj => {
-			return {
-				startTime: new Date(timeObj.startTime), 
-				endTime: new Date(timeObj.endTime)
-			};
-		});
-
-		//convert time string to time object if not 0
-		let newStartTime = object.startTime === 0 ? 0 : new Date(object.startTime);
-
-		//calculate total. Could just as easily restore total value from storage, 
-		//but this allows me to change the local storage values and still get a correct total
-		let newTotal = getTotalTime(newTimes, true);
-
-		//restore state
-		setTimes(newTimes);
-		setStartTime(newStartTime);
-		setTotalTime(newTotal);
-		startInterval(newStartTime);
-		getTodaysTime(newTimes);
-		setGoalTime(object.goalTime);
-		setGoalDaily(object.goalDaily);
-	}
+	//if a time has been edited, then adjust the total time
+	useEffect(() => {
+		if (changedLocal) {
+			setChangedLocal(false);
+			let totalTime = getTotalTime(times, true);
+			setTotalTime(totalTime);
+			updateTodaysTime(times);
+		}
+	}, [changedLocal, times]);
 
 	const startInterval = (start) => {
 		if (start === 0) return;
@@ -70,7 +53,7 @@ function App() {
 		window.document.title = 'Time Tracker - Active';
 	}
 
-	const getTodaysTime = (times) => {
+	const updateTodaysTime = (times) => {
 		let datesObj = sortByDate(times);
 		let today = getDate(new Date());
 		let todayTimes = datesObj[today];
@@ -112,7 +95,7 @@ function App() {
 		setTotalTime(newTotal);
 		clearValues();
 		saveToLocal(0, newTimes, newTotal, goalTime, goalDaily);
-		getTodaysTime(newTimes);
+		updateTodaysTime(newTimes);
 	}
 
 	const onClickReset = () => {
@@ -154,7 +137,7 @@ function App() {
 			<ConfirmButtonPopup label='Reset' onClick={onClickReset} width='100px'/>
 		</div>
 		<div>
-			<TimeList times={times}/>
+			<TimeList times={times} setTimes={setTimes} setChangedLocal={setChangedLocal}/>
 		</div>
 		</div>
 	);

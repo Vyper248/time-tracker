@@ -32,7 +32,7 @@ const StyledComp = styled.div`
     }
 `
 
-const TimeGroup = ({date, timeObjs}) => {
+const TimeGroup = ({date, timeObjs, ...rest}) => {
     const [open, setOpen] = useState(false);
 
     let totalTime = getTotalTime(timeObjs);
@@ -47,7 +47,7 @@ const TimeGroup = ({date, timeObjs}) => {
                 <h3>{date}</h3>
                 { open ? <MdExpandLess onClick={closeTimes}/> : <MdExpandMore onClick={openTimes}/> }
             </div>
-            { open ? timeObjs.map(obj => <TimesDisplay key={obj.startTime} obj={obj}/>) : null }
+            { open ? timeObjs.map(obj => <TimesDisplay key={obj.startTime} obj={obj} {...rest}/>) : null }
             <div>Daily Total: {totalTime}</div>
         </StyledComp>
     );

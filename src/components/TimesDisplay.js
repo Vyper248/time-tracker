@@ -1,55 +1,145 @@
+import { useState } from 'react';
 import styled from 'styled-components';
 import { format, differenceInSeconds } from 'date-fns';
+import { MdSettings } from 'react-icons/md';
 
-import { formatSeconds } from '../functions';
+import { formatSeconds, retrieveFromLocal, saveToLocal } from '../functions';
 
 const StyledComp = styled.div`
     display: flex;
-    width: 330px;
+    width: 430px;
     margin: auto;
 
-    & > div:first-child {
-        display: grid;
-        grid-template-columns: 1fr 30px 1fr;
-        border: 1px solid gray;
-        border-radius: 5px 0px 0px 5px;
-        width: 200px;
-        margin: 5px auto;
-        text-align: center;
-        margin-right: 0px;
-    }
-
-    & > div:last-child {
+    & > div {
         border: 1px solid gray;
         border-left: none;
-        border-radius: 0px 5px 5px 0px;
         margin: 5px auto;
+        height: 40px;
+        padding-left: 5px;
+        padding-right: 5px;
+
+        & > div {
+            padding-top: 5px;
+            padding-bottom: 5px;
+            margin: 0px;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    }
+
+    & > div.times {
+        border-left: 1px solid gray;
+        display: grid;
+        grid-template-columns: 1fr 30px 1fr;
+        border-radius: 5px 0px 0px 5px;
+        width: 300px;
+        text-align: center;
+        margin-right: 0px;
+
+        & input {
+            height: 30px;
+            width: 110px;
+        }
+    }
+
+    & > div.totalTime {
+        width: 120px;
+    }
+
+    & > div.edit {
+        border-left: none;
+        border-radius: 0px 5px 5px 0px;
         margin-left: 0px;
-        width: 100px;
-    }
+        width: 70px;
 
-    & > div > div {
-        margin: 5px;
-        padding-top: 5px;
-        padding-bottom: 5px;
-    }
+        & > div > svg {
+            font-size: 1.3em;
+        }
 
+        &:hover {
+            background-color: lightgray;
+            cursor: pointer;
+        }
+    }
 `
 
-const TimesDisplay = ({obj}) => {
+const TimesDisplay = ({obj, times, setTimes, setChangedLocal}) => {
+    const [edit, setEdit] = useState(false);
+    const [firstTime, setFirstTime] = useState(obj.startTime.toLocaleTimeString());
+    const [secondTime, setSecondTime] = useState(obj.endTime.toLocaleTimeString());
+
     let timeFormat = 'HH:mm:ss';
     let seconds = differenceInSeconds(obj.endTime, obj.startTime);
     let totalTime = formatSeconds(seconds);
 
+    const getNewDate = (time, originalDate) => {
+        let [hours, minutes, seconds] = time.split(':');
+        if (!seconds) seconds = 0;
+        if (!minutes) minutes = 0;
+        if (!hours) hours = 0;
+
+        const newDate = new Date(originalDate);
+        newDate.setHours(hours);
+        newDate.setMinutes(minutes);
+        newDate.setSeconds(seconds);
+
+        return newDate;
+    }
+
+    const updateLocalStorage = (newTimes) => {
+        let { startTime, totalTime, goalTime, goalDaily } = retrieveFromLocal();
+        saveToLocal(startTime, newTimes, totalTime, goalTime, goalDaily);
+    }
+
+    const onToggleEdit = () => {
+        setEdit(edit => !edit);
+        if (edit) {
+            const firstDate = getNewDate(firstTime, obj.startTime);
+            const secondDate = getNewDate(secondTime, obj.endTime);
+
+            let index = times.indexOf(obj);
+            let newTimes = [...times];
+            newTimes.splice(index, 1, {startTime: firstDate, endTime: secondDate});
+            setTimes(newTimes);
+            updateLocalStorage(newTimes);
+            setChangedLocal(true);
+        }
+    }
+
+    const onChangeFirstTime = (e) => {
+        const newTime = e.target.value;
+        setFirstTime(newTime);
+    }
+
+    const onChangeSecondTime = (e) => {
+        const newTime = e.target.value;
+        setSecondTime(newTime);
+    }
+
     return (
         <StyledComp>
-            <div>
-                <div>{format(obj.startTime, timeFormat)}</div>
+            <div className='times'>
+                <div>
+                    { edit 
+                        ? <div><input type='time' value={firstTime} onChange={onChangeFirstTime} step='1'/></div>
+                        : <div>{format(obj.startTime, timeFormat)}</div>
+                    }
+                </div>
                 <div>To</div>
-                <div>{format(obj.endTime, timeFormat)}</div>
+                <div>
+                    { edit 
+                        ? <div><input type='time' value={secondTime} onChange={onChangeSecondTime} step='1'/></div>
+                        : <div>{format(obj.endTime, timeFormat)}</div>
+                    }
+                </div>
             </div>
-            <div>
+            <div className='totalTime'>
                 <div>{totalTime}</div>
+            </div>
+            <div className='edit' onClick={onToggleEdit}>
+                <div>{edit ? 'Save' : <MdSettings/>}</div>
             </div>
         </StyledComp>
     );

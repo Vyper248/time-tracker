@@ -2,7 +2,7 @@ import { sortByDate } from '../functions';
 
 import TimeGroup from './TimeGroup';
 
-const TimeList = ({times}) => {
+const TimeList = ({times, ...rest}) => {
     if (times.length === 0) return null;
 
     //sort objects by date
@@ -11,7 +11,7 @@ const TimeList = ({times}) => {
 
     return (
         <div>
-            { uniqueDates.map(date => <TimeGroup key={date} date={date} timeObjs={datesObj[date]}/>) }
+            { uniqueDates.map(date => <TimeGroup key={date} date={date} timeObjs={datesObj[date]} times={times} {...rest}/>) }
         </div>
     );
 }

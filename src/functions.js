@@ -39,3 +39,37 @@ export const sortByDate = (times) => {
 
     return datesObj;
 }
+
+export const saveToLocal = (startTime, times, totalTime, goalTime, goalDaily) => {
+    let object = {startTime, times, totalTime, goalTime, goalDaily};
+    localStorage.setItem('time-tracker-state', JSON.stringify(object));
+}
+
+export const retrieveFromLocal = () => {
+    let object = localStorage.getItem('time-tracker-state');
+    if (object !== null) object = JSON.parse(object);
+    else object = {startTime: 0, times: [], totalTime: 0, goalTime: 0, goalDaily: false};
+
+    //convert time strings back into time objects
+    let newTimes = object.times.map(timeObj => {
+        return {
+            startTime: new Date(timeObj.startTime), 
+            endTime: new Date(timeObj.endTime)
+        };
+    });
+
+    //convert time string to time object if not 0
+    let newStartTime = object.startTime === 0 ? 0 : new Date(object.startTime);
+
+    //calculate total. Could just as easily restore total value from storage, 
+    //but this allows me to change the local storage values and still get a correct total
+    let newTotal = getTotalTime(newTimes, true);
+
+    return {
+        startTime: newStartTime,
+        times: newTimes,
+        totalTime: newTotal,
+        goalTime: object.goalTime,
+        goalDaily: object.goalDaily
+    }
+}
