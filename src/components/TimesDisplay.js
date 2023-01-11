@@ -39,7 +39,9 @@ const StyledComp = styled.div`
         margin-right: 0px;
 
         & input {
-            height: 30px;
+            border: 1px solid gray;
+            border-radius: 5px;
+            height: 29px;
             width: 110px;
         }
     }
@@ -65,10 +67,17 @@ const StyledComp = styled.div`
     }
 `
 
+const ErrorComp = styled.div`
+    color: red;
+    margin-top: -5px;
+    margin-bottom: 5px;
+`;
+
 const TimesDisplay = ({obj, times, setTimes}) => {
     const [edit, setEdit] = useState(false);
     const [firstTime, setFirstTime] = useState(obj.startTime.toLocaleTimeString());
     const [secondTime, setSecondTime] = useState(obj.endTime.toLocaleTimeString());
+    const [error, setError] = useState('');
 
     let timeFormat = 'HH:mm:ss';
     let seconds = differenceInSeconds(obj.endTime, obj.startTime);
@@ -94,16 +103,26 @@ const TimesDisplay = ({obj, times, setTimes}) => {
     }
 
     const onToggleEdit = () => {
-        setEdit(edit => !edit);
         if (edit) {
             const firstDate = getNewDate(firstTime, obj.startTime);
             const secondDate = getNewDate(secondTime, obj.endTime);
+
+            //make sure second time is after first time
+            let difference = differenceInSeconds(secondDate, firstDate);
+            if (difference < 1) {
+                setError('Error: Second time should be later than the first time.');
+                return;
+            }
 
             let index = times.indexOf(obj);
             let newTimes = [...times];
             newTimes.splice(index, 1, {startTime: firstDate, endTime: secondDate});
             setTimes(newTimes);
             updateLocalStorage(newTimes);
+            setEdit(false);
+            setError('');
+        } else {
+            setEdit(true);
         }
     }
 
@@ -118,29 +137,32 @@ const TimesDisplay = ({obj, times, setTimes}) => {
     }
 
     return (
-        <StyledComp>
-            <div className='times'>
-                <div>
-                    { edit 
-                        ? <div><input type='time' value={firstTime} onChange={onChangeFirstTime} step='1'/></div>
-                        : <div>{format(obj.startTime, timeFormat)}</div>
-                    }
+        <>
+            <StyledComp>
+                <div className='times'>
+                    <div>
+                        { edit 
+                            ? <div><input type='time' value={firstTime} onChange={onChangeFirstTime} step='1'/></div>
+                            : <div>{format(obj.startTime, timeFormat)}</div>
+                        }
+                    </div>
+                    <div>To</div>
+                    <div>
+                        { edit 
+                            ? <div><input type='time' value={secondTime} onChange={onChangeSecondTime} step='1'/></div>
+                            : <div>{format(obj.endTime, timeFormat)}</div>
+                        }
+                    </div>
                 </div>
-                <div>To</div>
-                <div>
-                    { edit 
-                        ? <div><input type='time' value={secondTime} onChange={onChangeSecondTime} step='1'/></div>
-                        : <div>{format(obj.endTime, timeFormat)}</div>
-                    }
+                <div className='totalTime'>
+                    <div>{totalTime}</div>
                 </div>
-            </div>
-            <div className='totalTime'>
-                <div>{totalTime}</div>
-            </div>
-            <div className='edit' onClick={onToggleEdit}>
-                <div>{edit ? 'Save' : <MdSettings/>}</div>
-            </div>
-        </StyledComp>
+                <div className='edit' onClick={onToggleEdit}>
+                    <div>{edit ? 'Save' : <MdSettings/>}</div>
+                </div>
+            </StyledComp>
+            { error.length > 0 ? <ErrorComp>{ error }</ErrorComp> : null }
+        </>
     );
 }
 
